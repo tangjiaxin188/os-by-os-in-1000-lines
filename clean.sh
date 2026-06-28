@@ -1,0 +1,1 @@
+rm ./*.o ./*.elf ./*.map ./*hell.bin
