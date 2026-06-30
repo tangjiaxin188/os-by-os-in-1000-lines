@@ -1,0 +1,35 @@
+name: C/C++ CI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Clang
+  # You may pin to the exact commit or the version.
+  # uses: egor-tensin/setup-clang@23bc15cd4207e45f1566447deb48f4ff3ef932cb
+      uses: egor-tensin/setup-clang@v2
+      with:
+            platform: x86_64
+    - name: build
+      run:  ./build.sh
+
+    
+    - name: Package kernel.elf
+      run: tar -czf kernel.tar.gz kernel.elf
+  
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+          name: kernel-elf
+          path: kernel.tar.gz
+          if-no-files-found: error   # 如果找不到文件则报错
