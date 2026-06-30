@@ -4,6 +4,7 @@
 #include "common.h"
 #include "panic.h"
 #include "page.h"
+#include "virtio.h"
 
 #define PROCS_MAX 8       // 最大进程数量
 
@@ -30,5 +31,6 @@ extern char __kernel_base[];
 // 应用程序镜像的基础虚拟地址。这需要与 `user.ld` 中定义的起始地址匹配。
 #define USER_BASE 0x1000000
 #define SSTATUS_SPIE (1 << 5)
+#define SSTATUS_SUM  (1 << 18)
 
 #endif

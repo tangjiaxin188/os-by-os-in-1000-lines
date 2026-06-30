@@ -8,10 +8,10 @@ __attribute__((naked)) void user_entry(void) {
     __asm__ __volatile__(
         "csrw sepc, %[sepc]        \n"
         "csrw sstatus, %[sstatus]  \n"
-        "sret                      \n"
+        "sret                      \n"  //进入用户模式
         :
         : [sepc] "r" (USER_BASE),
-          [sstatus] "r" (SSTATUS_SPIE)
+          [sstatus] "r" (SSTATUS_SPIE | SSTATUS_SUM)
     );
 }
 
@@ -88,7 +88,7 @@ struct process *create_process(const void *image, size_t image_size) {
     *--sp = 0;                      // s2
     *--sp = 0;                      // s1
     *--sp = 0;                      // s0
-    *--sp = (uint32_t) user_entry;  // ra (已更改!)
+    *--sp = (uint32_t) user_entry;  // ra 
 
         // 映射内核页面。
     uint32_t *page_table = (uint32_t *) alloc_pages(1);
@@ -96,6 +96,8 @@ struct process *create_process(const void *image, size_t image_size) {
          paddr < (paddr_t) __free_ram_end; paddr += PAGE_SIZE)
         map_page(page_table, paddr, paddr, PAGE_R | PAGE_W | PAGE_X);
     
+    map_page(page_table, VIRTIO_BLK_PADDR, VIRTIO_BLK_PADDR, PAGE_R | PAGE_W); // 映射磁盘MMIO区域
+
         // 映射用户页。
     for (uint32_t off = 0; off < image_size; off += PAGE_SIZE) {
         paddr_t page = alloc_pages(1);
