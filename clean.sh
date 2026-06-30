@@ -1,1 +1,1 @@
-rm ./*.o ./*.elf ./*.map ./*hell.bin
+rm ./*.o ./*.elf ./*.map ./*hell.bin *.tar
