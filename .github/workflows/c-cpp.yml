@@ -16,7 +16,7 @@ jobs:
     - name: Install Clang
   # You may pin to the exact commit or the version.
   # uses: egor-tensin/setup-clang@23bc15cd4207e45f1566447deb48f4ff3ef932cb
-      uses: tangjiaxin188/setup-clang@v0.1
+      uses: tangjiaxin188/setup-clang@master
       with:
             platform: x86_64
             version: 22
