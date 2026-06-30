@@ -2,7 +2,8 @@ name: C/C++ CI
 
 on:
   push:
-    branches: ["main"]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ "main" ]
 
@@ -27,11 +28,24 @@ jobs:
 
     
     - name: Package kernel.elf
-      run: tar -czf kernel.tar.gz kernel.elf
+      run: tar -czf kernel-riscv32.tar.gz kernel.elf
   
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
           name: kernel-elf
-          path: kernel.tar.gz
+          path: kernel-riscv32.tar.gz
           if-no-files-found: error   # 如果找不到文件则报错
+
+    
+    - name: Create Release and Upload Assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          kernel-riscv32.tar.gz
+          # 可以添加多个文件，每行一个
+        draft: false
+        prerelease: false
+        generate_release_notes: true   # 自动生成 release notes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
