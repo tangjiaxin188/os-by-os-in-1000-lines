@@ -4,6 +4,8 @@
 [![Language](https://img.shields.io/badge/Language-C%20%2B%20Assembly-blueviolet)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Build](https://img.shields.io/badge/Build-Clang%20%2B%20LLD-brightgreen)](https://clang.llvm.org/)
 
+![运行截图](./picture.webp)
+
 本仓库是基于教程 **[OS in 1000 lines](https://1000os.seiya.me/zh/)** 的实践性操作系统内核实现。
 
 **由衷感谢原教程作者 [@nuta](https://github.com/nuta) 提供的优质教学资源！**
