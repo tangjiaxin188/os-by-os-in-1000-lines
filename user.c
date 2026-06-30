@@ -24,6 +24,12 @@ int writefile(const char *filename, const char *buf, int len) {
     return syscall(SYS_WRITEFILE, (int) filename, (int) buf, len);
 }
 
+__attribute__((noreturn))
+void poweroff(void) {
+    syscall(SYS_CONTROL, SYS_CONTROL_POWEROFF, 0, 0);
+    for (; ; );
+}
+
 __attribute__((section(".text.start")))
 __attribute__((naked))
 void start(void) {

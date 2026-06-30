@@ -12,6 +12,17 @@ const char welcome[] = {
     ,'\0'
 };
 
+__attribute__((noreturn)) 
+void pof(void){
+    sbi_call(
+        SBI_SRST_RESET_TYPE_SHUTDOWN,  // arg0: reset_type
+        SBI_SRST_RESET_REASON_NONE,    // arg1: reset_reason
+        0, 0, 0, 0,                    // arg2~arg5 未使用，填0
+        SBI_SRST_RESET,                // fid: 函数ID
+        SBI_EXT_SRST                   // eid: 扩展ID
+    );
+}
+
 extern char _binary_shell_bin_start[], _binary_shell_bin_size[];
 
 void kernel_entry(void); //异常处理函数
@@ -78,6 +89,12 @@ void handle_syscall(struct trap_frame *f) {
                 memcpy(buf, file->data, len);
             }
             f->a0 = len;
+            break;
+        }
+        case SYS_CONTROL: {
+            printf("poweroff now...\n");
+            pof();
+            PANIC("ERROR! CANNOT POWEROFF BY UNKNOWN REASON!");
             break;
         }
         default:
