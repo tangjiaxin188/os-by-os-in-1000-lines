@@ -20,8 +20,8 @@ jobs:
       with:
             platform: x86_64
             version: 22
-    - name: Install LLVM
-      run:  apt install llvm -y
+    # - name: Install LLVM
+    #   run:  apt install llvm -y
     - name: build
       run:  ./build.sh
 
