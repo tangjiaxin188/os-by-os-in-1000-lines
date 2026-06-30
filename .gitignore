@@ -2,3 +2,4 @@
 *.elf
 shell.bin
 *.map
+*.tar
