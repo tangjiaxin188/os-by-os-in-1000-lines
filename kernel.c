@@ -4,6 +4,13 @@
 #include "memory.h"
 #include "common.h"
 #include "stage.h"
+#include "fs.h"
+#include "virtio.h"
+
+const char welcome[] = {
+    #embed "huanying.txt" if_empty('W','E','L','C','O','M','E')
+    ,'\0'
+};
 
 extern char _binary_shell_bin_start[], _binary_shell_bin_size[];
 
@@ -18,6 +25,17 @@ long getchar(void) {
     return ret.error;
 }
 
+struct file *fs_lookup(const char *filename) {
+    for (int i = 0; i < FILES_MAX; i++) {
+        struct file *file = &files[i];
+        if (!strcmp(file->name, filename))
+            return file;
+    }
+
+    return NULL;
+}
+
+//系统调用实现：
 void handle_syscall(struct trap_frame *f) {
     switch (f->a3) {
         case SYS_PUTCHAR:
@@ -39,6 +57,29 @@ void handle_syscall(struct trap_frame *f) {
             current_proc->state = PROC_EXITED;
             yield();
             PANIC("unreachable");
+        case SYS_READFILE:
+        case SYS_WRITEFILE: {
+            const char *filename = (const char *) f->a0;
+            char *buf = (char *) f->a1;
+            int len = f->a2;
+            struct file *file = fs_lookup(filename);
+            if (!file) {
+                printf("file not found: %s\n", filename);
+                f->a0 = -1;
+                break;
+            }
+            if (len > (int) sizeof(file->data))
+                len = file->size;
+            if (f->a3 == SYS_WRITEFILE) {
+                memcpy(file->data, buf, len);
+                file->size = len;
+                fs_flush();
+            } else {
+                memcpy(buf, file->data, len);
+            }
+            f->a0 = len;
+            break;
+        }
         default:
             PANIC("unexpected syscall a3=%x\n", f->a3);
     }
@@ -67,14 +108,25 @@ void handle_syscall(struct trap_frame *f) {
 
 void kernel_main(void) {
     memset(__bss, 0, (size_t) __bss_end - (size_t) __bss);
-    //PANIC("Boot!");
-    WRITE_CSR(stvec, (uint32_t) kernel_entry); // 新增
+    // PANIC("Boot!");
+    WRITE_CSR(stvec, (uint32_t) kernel_entry); // 设置异常表
+    // PANIC("THERE!");
+    virtio_blk_init(); //初始化磁盘接口
+    fs_init();
+    printf("%s",welcome);
     //__asm__ __volatile__("unimp"); // 新增
-    idle_proc = create_process(NULL, 0); // 已更新!
+    // char buf[SECTOR_SIZE];
+    // read_write_disk(buf, 0, DISK_READ /* 从磁盘读取 */);
+    // printf("first sector: %s\n", buf);
+
+    // strcpy(buf, "hello from kernel!!!\n");
+    // read_write_disk(buf, 0, DISK_WRITE /* 写入磁盘 */);
+
+    idle_proc = create_process(NULL, 0); // 创建0号进程
     idle_proc->pid = 0; // idle
     current_proc = idle_proc;
 
-    create_process(_binary_shell_bin_start, (size_t) _binary_shell_bin_size);
+    create_process(_binary_shell_bin_start, (size_t) _binary_shell_bin_size); //创建shell进程
 
     yield();
     PANIC("over");
