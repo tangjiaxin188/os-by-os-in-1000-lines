@@ -97,7 +97,7 @@ struct process *create_process(const void *image, size_t image_size) {
         map_page(page_table, paddr, paddr, PAGE_R | PAGE_W | PAGE_X);
     
     map_page(page_table, VIRTIO_BLK_PADDR, VIRTIO_BLK_PADDR, PAGE_R | PAGE_W); // 映射磁盘MMIO区域
-
+    map_page(page_table, VIRTIO_RNG_PADDR, VIRTIO_RNG_PADDR, PAGE_R | PAGE_W); // 映射熵源MMIO区域
         // 映射用户页。
     for (uint32_t off = 0; off < image_size; off += PAGE_SIZE) {
         paddr_t page = alloc_pages(1);
