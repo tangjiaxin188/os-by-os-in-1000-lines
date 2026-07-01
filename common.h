@@ -29,6 +29,7 @@ typedef uint32_t vaddr_t;
 #define SYS_READFILE    4
 #define SYS_WRITEFILE   5
 #define SYS_CONTROL     6
+#define SYS_RANDOM      7
 
 #define SYS_CONTROL_POWEROFF    0
 

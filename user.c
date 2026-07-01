@@ -30,6 +30,10 @@ void poweroff(void) {
     for (; ; );
 }
 
+int random(){
+    return syscall(SYS_RANDOM, 0, 0, 0);
+}
+
 __attribute__((section(".text.start")))
 __attribute__((naked))
 void start(void) {

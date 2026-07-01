@@ -97,6 +97,12 @@ void handle_syscall(struct trap_frame *f) {
             PANIC("ERROR! CANNOT POWEROFF BY UNKNOWN REASON!");
             break;
         }
+        case SYS_RANDOM:{
+            uint32_t r = 0;
+            virtio_rng_get_random(&r, sizeof(r));
+            f->a0 = r;
+            break;
+        }
         default:
             PANIC("unexpected syscall a3=%x\n", f->a3);
     }
@@ -130,6 +136,7 @@ void kernel_main(void) {
     // PANIC("THERE!");
     virtio_blk_init(); //初始化磁盘接口
     fs_init();
+    virtio_rng_init(); // 初始化 RNG
     printf("%s",welcome);
     //__asm__ __volatile__("unimp"); // 新增
     // char buf[SECTOR_SIZE];
