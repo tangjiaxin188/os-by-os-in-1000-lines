@@ -39,6 +39,9 @@ prompt:
         else if (strcmp(cmdline, "poweroff") == 0){
             poweroff();
         }
+        else if (strcmp(cmdline, "random") == 0) {
+            printf("Get a Random number: %d\n",random());
+        }
         else
             printf("unknown command: %s\n", cmdline);
     }
