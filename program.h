@@ -5,6 +5,7 @@
 #include "panic.h"
 #include "page.h"
 #include "virtio.h"
+#include "uart.h"
 
 #define PROCS_MAX 8       // 最大进程数量
 

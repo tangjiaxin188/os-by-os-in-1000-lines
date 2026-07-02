@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "config.h"
 #include "sbi_call.h"
 #include "program.h"
 #include "memory.h"
@@ -6,6 +7,7 @@
 #include "stage.h"
 #include "fs.h"
 #include "virtio.h"
+#include "uart.h"
 
 const char welcome[] = {
     #embed "huanying.txt" if_empty('W','E','L','C','O','M','E')
@@ -27,14 +29,31 @@ extern char _binary_shell_bin_start[], _binary_shell_bin_size[];
 
 void kernel_entry(void); //异常处理函数
 
+void uputchar(char c){
+    uart_putc(c);
+}
+
 void putchar(char c){
+#ifndef UART_IMPL
     sbi_call(c, 0, 0, 0, 0, 0, 0, 1);
+#else 
+    uputchar(c);
+#endif
+}
+
+long ugetchar(void){
+    return (long)uart_getc();
 }
 
 long getchar(void) {
+#ifndef UART_IMPL
     struct sbiret ret = sbi_call(0, 0, 0, 0, 0, 0, 0, 2);
     return ret.error;
+#else
+    return (long)ugetchar();
+#endif
 }
+
 
 struct file *fs_lookup(const char *filename) {
     for (int i = 0; i < FILES_MAX; i++) {
@@ -134,6 +153,10 @@ void kernel_main(void) {
     // PANIC("Boot!");
     WRITE_CSR(stvec, (uint32_t) kernel_entry); // 设置异常表
     // PANIC("THERE!");
+    uart_init();
+    // uart_putc('\n');
+    // uart_putc('O');
+    // uart_putc('\n');
     virtio_blk_init(); //初始化磁盘接口
     fs_init();
     virtio_rng_init(); // 初始化 RNG

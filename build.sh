@@ -10,4 +10,4 @@ $OBJCOPY --set-section-flags .bss=alloc,contents -O binary shell.elf shell.bin
 $OBJCOPY -Ibinary -Oelf32-littleriscv shell.bin shell.bin.o
 # 构建内核
 $CC $CFLAGS -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf \
-    kernel.c common.c sbi_call.c memory.c program.c page.c virtio.c fs.c shell.bin.o
+    kernel.c common.c sbi_call.c memory.c program.c page.c virtio.c fs.c uart.c shell.bin.o
